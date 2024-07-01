@@ -24,7 +24,8 @@ public class BitsController {
     @Autowired
     private UserServices userServices;
 
-    @PostMapping("/{userId}")
+    // Create Bit
+    @PostMapping("/new/{userId}")
     public ResponseEntity<Object> createBits(@RequestBody Bits bits, @PathVariable Long userId){
         try{
             Optional<User> userInDb = userServices.getUserById(userId);
@@ -43,8 +44,8 @@ public class BitsController {
         }
     }
 
-    // Get Bits Based on User
-    @GetMapping("/{userId}")
+    // Get Bit Based on User Id
+    @GetMapping("/user/{userId}")
     public ResponseEntity<Object> createBits(@PathVariable Long userId){
         try{
             Optional<User> userInDb = userServices.getUserById(userId);
@@ -75,9 +76,23 @@ public class BitsController {
         }
     }
 
+    // Get Bits based on BitId
+    @GetMapping("/{bitId}")
+    public ResponseEntity<Object> getBitById(@PathVariable Long bitId){
+        try{
+            Optional<Bits> bit = bitsService.getOneBitsById(bitId);
+            if(bit.isEmpty()){
+                return  ResponseHandler.generateResponse("No Bit Found with the provided Details!", HttpStatus.NOT_FOUND, null);
+            }
+            return  ResponseHandler.generateResponse("Successfully Fetched Bit!", HttpStatus.CREATED, bit);
+        }catch (Exception e){
+            return  ResponseHandler.generateResponse("Something Went Wrong!", HttpStatus.INTERNAL_SERVER_ERROR, null);
+        }
+    }
+
     // Get All Bits by User
-    @DeleteMapping("/{userId}/{bitsId}")
-    public ResponseEntity<Object> deleteBits(@PathVariable Long userId, @PathVariable Long bitsId){
+    @DeleteMapping("/{bitsId}")
+    public ResponseEntity<Object> deleteBits(@PathVariable Long bitsId,  @RequestParam Long userId){
         try{
             Optional<User> userInDb = userServices.getUserById(userId);
             if(userInDb.isEmpty()){
@@ -101,6 +116,7 @@ public class BitsController {
         }
     }
 
+    // Like/Unlike a Bit!
     @PostMapping("/like/{bitsId}")
     public ResponseEntity<Object> likeBit(@PathVariable Long bitsId,  @RequestParam Long userId){
         try {
@@ -125,19 +141,26 @@ public class BitsController {
                 bitsService.likeBit(userBit, author.getId());
                 return  ResponseHandler.generateResponse("LIKED", HttpStatus.OK, userBit);
             }
-
-
-//            if(userBit.getLikedBy().contains(author)){
-////               bitsService.unlikebit(userBit, author);
-//                return  ResponseHandler.generateResponse("UNLIKED", HttpStatus.OK, userBit.getLikedBy());
-//            }else {
-//                // Like Bit
-////                bitsService.likeBit(userBit, author);
-//                return  ResponseHandler.generateResponse("LIKED", HttpStatus.OK, userBit);
-//            }
         }catch (Exception e){
             return  ResponseHandler.generateResponse("Something Went Wrong!", HttpStatus.INTERNAL_SERVER_ERROR, null);
 
+        }
+    }
+
+    // Get Bits based on BitId
+    @GetMapping("/search")
+    public ResponseEntity<Object> searchBits(@RequestParam String text){
+        try{
+            if(text.isEmpty()){
+                return  ResponseHandler.generateResponse("No Result! Try Searching Something!", HttpStatus.BAD_REQUEST, null);
+            }
+            List<Bits> result = bitsService.searchBitsBasedOnText(text);
+            if(result.isEmpty()){
+                return  ResponseHandler.generateResponse("No Result Found for " + text + "!", HttpStatus.NOT_FOUND, null);
+            }
+            return  ResponseHandler.generateResponse("Loading Results for: " + text +":\n", HttpStatus.OK, result);
+        }catch (Exception e){
+            return  ResponseHandler.generateResponse("Something Went Wrong!", HttpStatus.INTERNAL_SERVER_ERROR, null);
         }
     }
 

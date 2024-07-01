@@ -28,7 +28,8 @@ public class Bits {
     private String description;
     @NonNull
     private String content;
-    private String programminglanguage = "Not Specified";
+    private String programmingLanguage = "Not Specified";
+    private String tag = "Not Specified";
     private LocalDateTime createdAt;
 
     @ManyToOne(fetch = FetchType.EAGER, optional = false)

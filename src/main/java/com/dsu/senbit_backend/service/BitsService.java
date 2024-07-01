@@ -57,13 +57,7 @@ public class BitsService {
         bitsRepo.save(bits);
     }
 
-//    public void likeBit(Bits bits, User user){
-//        bits.getLikedBy().add(user);
-//        bitsRepo.save(bits);
-//    }
-//
-//    public void unlikebit(Bits bits, User user){
-//        bits.getLikedBy().remove(user);
-//        bitsRepo.save(bits);
-//    }
+    public List<Bits> searchBitsBasedOnText(String text){
+        return bitsRepo.findByTagIgnoreCase(text);
+    }
 }

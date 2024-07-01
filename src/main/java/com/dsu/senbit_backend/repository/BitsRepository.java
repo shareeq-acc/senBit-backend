@@ -8,6 +8,7 @@ import java.util.List;
 
 public interface BitsRepository extends JpaRepository<Bits, Long> {
     List<Bits> findByAuthorId(Long userId);
+    List<Bits> findByTagIgnoreCase(String tag);
 
     @Transactional
     void deleteByAuthorId(long userId);
