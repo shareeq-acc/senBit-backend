@@ -46,7 +46,7 @@ public class BitsController {
 
     // Get Bit Based on User Id
     @GetMapping("/user/{userId}")
-    public ResponseEntity<Object> createBits(@PathVariable Long userId){
+    public ResponseEntity<Object> getBitsByUser(@PathVariable Long userId){
         try{
             Optional<User> userInDb = userServices.getUserById(userId);
             if(userInDb.isEmpty()){
@@ -56,7 +56,7 @@ public class BitsController {
             if(userBits.isEmpty()){
                 return  ResponseHandler.generateResponse("No Bits Created Yet!", HttpStatus.NO_CONTENT, null);
             }
-            return  ResponseHandler.generateResponse("Successfully Fetched Bits!", HttpStatus.CREATED, userBits);
+            return  ResponseHandler.generateResponse("Successfully Fetched Bits!", HttpStatus.OK, userBits);
         }catch (Exception e){
             return  ResponseHandler.generateResponse("Something Went Wrong!", HttpStatus.INTERNAL_SERVER_ERROR, null);
         }
@@ -64,13 +64,13 @@ public class BitsController {
 
     // Get All Bits
     @GetMapping
-    public ResponseEntity<Object> createBits(){
+    public ResponseEntity<Object> getAllBits(){
         try{
             List<Bits> bits = bitsService.getAllBits();
             if(bits.isEmpty()){
                 return  ResponseHandler.generateResponse("No Bits Created Yet!", HttpStatus.NO_CONTENT, null);
             }
-            return  ResponseHandler.generateResponse("Successfully Fetched Bits!", HttpStatus.CREATED, bits);
+            return  ResponseHandler.generateResponse("Successfully Fetched Bits!", HttpStatus.OK, bits);
         }catch (Exception e){
             return  ResponseHandler.generateResponse("Something Went Wrong!", HttpStatus.INTERNAL_SERVER_ERROR, null);
         }
@@ -84,7 +84,7 @@ public class BitsController {
             if(bit.isEmpty()){
                 return  ResponseHandler.generateResponse("No Bit Found with the provided Details!", HttpStatus.NOT_FOUND, null);
             }
-            return  ResponseHandler.generateResponse("Successfully Fetched Bit!", HttpStatus.CREATED, bit);
+            return  ResponseHandler.generateResponse("Successfully Fetched Bit!", HttpStatus.OK, bit);
         }catch (Exception e){
             return  ResponseHandler.generateResponse("Something Went Wrong!", HttpStatus.INTERNAL_SERVER_ERROR, null);
         }
@@ -147,7 +147,7 @@ public class BitsController {
         }
     }
 
-    // Get Bits based on BitId
+    // Search Bits Based on Text
     @GetMapping("/search")
     public ResponseEntity<Object> searchBits(@RequestParam String text){
         try{

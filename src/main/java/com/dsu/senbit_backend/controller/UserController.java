@@ -32,6 +32,23 @@ public class UserController {
         }
     }
 
+    @PostMapping("/login")
+    public ResponseEntity<Object> loginUser(@RequestBody User requestedUser){
+        try{
+            Optional<User> userInDb = userService.getUserByEmail(requestedUser.getEmail());
+            if(userInDb.isEmpty()){
+                return  ResponseHandler.generateResponse("Invalid Credentials", HttpStatus.UNAUTHORIZED, null);
+            }
+            User user = userInDb.get();
+            if(!(user.getPassword().equals(requestedUser.getPassword()))){
+                return  ResponseHandler.generateResponse("Invalid Credentials", HttpStatus.UNAUTHORIZED, null);
+            }
+            return  ResponseHandler.generateResponse("SUCCESSFUL LOGIN", HttpStatus.OK, user);
+        }catch(Exception e){
+            return  ResponseHandler.generateResponse("Something Went Wrong!", HttpStatus.INTERNAL_SERVER_ERROR, null);
+        }
+    }
+
     @PutMapping("/{userId}")
     public ResponseEntity<Object> updateUser(@PathVariable Long userId, @RequestBody User user){
         try{
@@ -46,7 +63,7 @@ public class UserController {
             oldEntry.setOrganization(user.getOrganization() != null ? user.getOrganization() : oldEntry.getOrganization());
 
             userService.saveEntry(oldEntry);
-            return  ResponseHandler.generateResponse("User Updated", HttpStatus.OK, oldEntry);
+            return  ResponseHandler.generateResponse("User Introduction Updated", HttpStatus.OK, oldEntry);
         }catch(Exception e){
             return  ResponseHandler.generateResponse("Something Went Wrong!", HttpStatus.INTERNAL_SERVER_ERROR, null);
         }
