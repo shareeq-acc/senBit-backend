@@ -1,11 +1,14 @@
 package com.dsu.senbit_backend.entity;
 
 import com.dsu.senbit_backend.enums.Domains;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Builder
@@ -31,6 +34,12 @@ public class User {
     private String organization;
     private Domains domain;
 
-//    @ManyToMany(mappedBy = "likedBy")
-//    private Set<Bits> likedPosts = new HashSet<>();
+    @JsonIgnore
+    @ManyToMany(cascade = { CascadeType.ALL })
+    @JoinTable(
+            name = "Collections_Bits",
+            joinColumns = { @JoinColumn(name = "users_id") },
+            inverseJoinColumns = { @JoinColumn(name = "bits_id") }
+    )
+    private List<Bits> collections = new ArrayList<>();
 }
