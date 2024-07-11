@@ -35,14 +35,6 @@ public class BitsService {
         bitsRepo.save(bits);
     }
 
-    public void updateBit(Bits bits){
-        bitsRepo.save(bits);
-    }
-
-    public void deleteAllByUser(Long userId){
-        bitsRepo.deleteByAuthorId(userId);
-    }
-
     public void deleteBit(Long bitsId){
         bitsRepo.deleteById(bitsId);
     }
@@ -57,7 +49,18 @@ public class BitsService {
         bitsRepo.save(bits);
     }
 
+    public void addDislike(Bits bits, Long userId){
+        bits.getDislikedBy().add(userId);
+        bitsRepo.save(bits);
+    }
+
+    public void removeDislike(Bits bits, Long userId){
+        bits.getDislikedBy().remove(userId);
+        bitsRepo.save(bits);
+    }
+
     public List<Bits> searchBitsBasedOnText(String text){
         return bitsRepo.findByTagIgnoreCase(text);
     }
+
 }
