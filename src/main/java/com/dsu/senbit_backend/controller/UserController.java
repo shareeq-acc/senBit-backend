@@ -1,13 +1,16 @@
 package com.dsu.senbit_backend.controller;
 
+import com.dsu.senbit_backend.entity.Bits;
 import com.dsu.senbit_backend.entity.User;
 import com.dsu.senbit_backend.handler.ResponseHandler;
+import com.dsu.senbit_backend.service.BitsService;
 import com.dsu.senbit_backend.service.UserServices;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,9 +21,12 @@ public class UserController {
     @Autowired
     private UserServices userService;
 
+    @Autowired
+    private BitsService bitsService;
+
     @PostMapping
-    public ResponseEntity<Object> createUser(@RequestBody User user){
-        try{
+    public ResponseEntity<Object> createUser(@RequestBody User user) {
+        try {
             Optional<User> userInDb = userService.getUserByEmail(user.getEmail());
             if(userInDb.isPresent()){
                 return  ResponseHandler.generateResponse("User Already Exists with this Email", HttpStatus.BAD_REQUEST, null);
@@ -57,18 +63,26 @@ public class UserController {
                 return  ResponseHandler.generateResponse("User Does Not Exists", HttpStatus.BAD_REQUEST, null);
             }
             User oldEntry = userInDb.get();
+            // Introduction
             oldEntry.setBio(user.getBio() != null ? user.getBio() : oldEntry.getBio());
             oldEntry.setDomain(user.getDomain() != null ? user.getDomain() : oldEntry.getDomain());
             oldEntry.setExperience(user.getExperience() != null ? user.getExperience() : oldEntry.getExperience());
             oldEntry.setOrganization(user.getOrganization() != null ? user.getOrganization() : oldEntry.getOrganization());
 
+            // Personal Details
+            oldEntry.setFname(user.getFname() != null ? user.getFname() : oldEntry.getFname());
+            oldEntry.setLname(user.getLname() != null ? user.getLname() : oldEntry.getLname());
+            oldEntry.setEmail(user.getEmail() != null ? user.getEmail() : oldEntry.getEmail());
+            oldEntry.setPassword(user.getPassword() != null ? user.getPassword() : oldEntry.getPassword());
+
             userService.saveEntry(oldEntry);
-            return  ResponseHandler.generateResponse("User Introduction Updated", HttpStatus.OK, oldEntry);
+            return  ResponseHandler.generateResponse("User Updated", HttpStatus.OK, oldEntry);
         }catch(Exception e){
             return  ResponseHandler.generateResponse("Something Went Wrong!", HttpStatus.INTERNAL_SERVER_ERROR, null);
         }
 
     }
+
 
     @GetMapping("/{userId}")
     public ResponseEntity<Object> displayUser(@PathVariable Long userId){
@@ -81,8 +95,8 @@ public class UserController {
         }catch (Exception e){
             return  ResponseHandler.generateResponse("Something Went Wrong!", HttpStatus.INTERNAL_SERVER_ERROR, null);
         }
-
     }
+
 
     // For Testing Purpose
     @GetMapping
@@ -91,10 +105,4 @@ public class UserController {
         return ResponseHandler.generateResponse("Successfully retrieved data!", HttpStatus.OK, users);
     }
 
-
-    @DeleteMapping
-    public boolean deleteAllUsers(){
-        userService.delAll();
-        return true;
-    }
 }

@@ -117,8 +117,8 @@ public class BitsController {
     }
 
     // Like/Unlike a Bit!
-    @PostMapping("/like/{bitsId}")
-    public ResponseEntity<Object> likeBit(@PathVariable Long bitsId,  @RequestParam Long userId){
+    @PutMapping("/like/{bitsId}")
+    public ResponseEntity<Object> likeBit(@PathVariable Long bitsId,  @RequestParam Long userId, @RequestParam String action){
         try {
             Optional<User> userInDb = userServices.getUserById((long)userId);
             if(userInDb.isEmpty()){
@@ -128,19 +128,39 @@ public class BitsController {
             if(bits.isEmpty()){
                 return  ResponseHandler.generateResponse("Bits Not Found", HttpStatus.NOT_FOUND, null);
             }
+
+            if(action == null) {
+                action = "LIKE";
+            }
+
             User author = userInDb.get();
             Bits userBit = bits.get();
 
-
-
-//            if(userBit.getLikedBy().stream().anyMatch(user -> user.getId().equals(author.getId()))){
-            if(userBit.getLikedBy().contains(userId)){
-                bitsService.unlikeBit(userBit, author.getId());
-                return  ResponseHandler.generateResponse("UNLIKED", HttpStatus.OK, userBit);
+            if(action.equals("LIKE")){
+                if(userBit.getDislikedBy().contains(userId)){
+                    bitsService.removeDislike(userBit, author.getId());
+                }
+                if(userBit.getLikedBy().contains(userId)){
+                    bitsService.unlikeBit(userBit, author.getId());
+                    return  ResponseHandler.generateResponse("UNLIKED", HttpStatus.OK, userBit);
+                }else {
+                    bitsService.likeBit(userBit, author.getId());
+                    return  ResponseHandler.generateResponse("LIKED", HttpStatus.OK, userBit);
+                }
             }else {
-                bitsService.likeBit(userBit, author.getId());
-                return  ResponseHandler.generateResponse("LIKED", HttpStatus.OK, userBit);
+                if(userBit.getLikedBy().contains(userId)){
+                    bitsService.unlikeBit(userBit, author.getId());
+                }
+                if(userBit.getDislikedBy().contains(userId)){
+                    bitsService.removeDislike(userBit, author.getId());
+                    return  ResponseHandler.generateResponse("Removed Dislike", HttpStatus.OK, userBit);
+                }else {
+                    bitsService.addDislike(userBit, author.getId());
+                    return  ResponseHandler.generateResponse("Added Dislike", HttpStatus.OK, userBit);
+                }
             }
+
+
         }catch (Exception e){
             return  ResponseHandler.generateResponse("Something Went Wrong!", HttpStatus.INTERNAL_SERVER_ERROR, null);
 
